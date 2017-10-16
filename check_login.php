@@ -4,7 +4,7 @@ $username = $_POST['username'];
 $password = $_POST['password'];
 
 $username= str_replace("'", "\'", $username);
-$password= str_replace("'", "\'", $password);
+$password= sha1($password);
 $conn = mysqli_connect("localhost", "root", "", "school_manager") or die();
 mysqli_query($conn, "set names 'utf8'");
 $result = mysqli_query($conn, "select * from user where username='" . $username . "' and password='" . $password . "'");
