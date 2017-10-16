@@ -11,6 +11,9 @@
     </li>
     <li<?php if (strpos($_SERVER['SCRIPT_NAME'], 'pupil') !== FALSE) echo ' class="active"'; ?>>
         <a href="http://localhost/school_manager/pupil/index.php">Quản lý học sinh</a>
-    </li>                   
+    </li> 
+    <li<?php if (strpos($_SERVER['SCRIPT_NAME'], 'guide') !== FALSE) echo ' class="active"'; ?>>
+        <a href="http://localhost/school_manager/guide/index.php">Hướng dẫn sử dụng hệ thống</a>
+    </li>   
 </ul>
 <div style="clear: both;"></div>
