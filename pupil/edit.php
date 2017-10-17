@@ -297,4 +297,5 @@ function update($conn) {
             . "where id=" . $id;
     mysqli_query($conn, $sql);
 }
+//tuetc
 ?>
