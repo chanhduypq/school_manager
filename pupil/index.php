@@ -17,7 +17,7 @@ if (!isset($_SESSION['username'])) {
             jQuery(function($){
                 $("img.delete").click(function() {
                     $.ajax({
-                       url:'delete.php?id='+$(this).attr('id')
+                       url:'../common/delete.php?id='+$(this).attr('id')+'&table_name=pupil'
                     });
                     $(this).parent().parent().remove();
                 });

@@ -2,11 +2,10 @@
 $conn = mysqli_connect("localhost", "root", "", "school_manager") or die();
 mysqli_query($conn, "set names 'utf8'");
 $id = $_GET['id'];
-if (!ctype_digit($id)) {
-    header('Location:index.php');
+$tableName = $_GET['table_name'];
+if (!ctype_digit($id)) {    
     exit;
 }
-$sql="delete from class where id=".$id;
+$sql="delete from $tableName where id=$id";
 mysqli_query($conn, $sql);
-header('Location:index.php');
 ?>
