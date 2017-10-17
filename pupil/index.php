@@ -53,14 +53,14 @@ if (!isset($_SESSION['username'])) {
                     avatar
                 </th>
                 <th style="width: 20%;">
-                    vài thông tin khác
+                    vài thông tin khác                    
                 </th>
                 <th style="width: 20%;">&nbsp;</th>
             </tr>
             <?php
             $conn = mysqli_connect("localhost", "root", "", "school_manager") or die();
             mysqli_query($conn, "set names 'utf8'");
-            $result = mysqli_query($conn, "select pupil.full_name,pupil.sex,pupil.birthday,class.name,pupil.id,pupil.married,pupil.introduce,pupil.avatar from pupil join class on class.id=pupil.class_id order by pupil.class_id ASC");
+            $result = mysqli_query($conn, "select pupil.full_name,pupil.sex,pupil.birthday,class.name,pupil.id,pupil.married,pupil.introduce,pupil.avatar,pupil.profile from pupil join class on class.id=pupil.class_id order by pupil.class_id ASC");
             while ($row = mysqli_fetch_array($result)) {
                 ?>
                 <tr>
@@ -98,7 +98,19 @@ if (!isset($_SESSION['username'])) {
                         } 
                         ?>
                     </td>
-                    <td><?php echo $row['introduce']; ?></td>
+                    <td>
+                        <?php echo $row['introduce']; ?>
+                        <br>
+                        <?php 
+                        if (trim($row['profile']) != '' && file_exists("../public/images/database/profile/" . trim($row['profile']))) {
+                                ?>
+                            <a href="download.php?file_name=<?php echo $row['profile']; ?>">
+                                download
+                            </a>
+                        <?php 
+                        } 
+                        ?>
+                    </td>
                     <td style="text-align: center;">
                         
                         <img id="<?php echo $row['id']; ?>" class="delete" style="margin-right: 20px;" title="Nhấn vào đây để xóa" src="../public/images/delete-icon.png"/>
