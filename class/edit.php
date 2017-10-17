@@ -88,6 +88,7 @@ while ($row = mysqli_fetch_array($result)) {
 function update($conn){  
     $name = $_POST['name'];
     $name = str_replace("'", "\'", $name);
+    $name= htmlentities($name);
     $id = $_POST['id'];
     if (!ctype_digit($id)) {
         header('Location:index.php');

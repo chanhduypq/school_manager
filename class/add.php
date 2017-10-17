@@ -77,6 +77,7 @@ if (count($_POST) > 0) {
 function insert($conn){
     $name = $_POST['name'];
     $name = str_replace("'", "\'", $name);
+    $name= htmlentities($name);
     $sql = "insert into class "
             . "("
             . "name"

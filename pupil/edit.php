@@ -218,6 +218,7 @@ function update($conn) {
     $class_id = $_POST['class_id'];
     $full_name = $_POST['full_name'];
     $full_name = str_replace("'", "\'", $full_name);
+    $full_name= htmlentities($full_name);
     $birthday = $_POST['birthday'];
     $birthday = convertToENDate($birthday);
 
@@ -229,6 +230,7 @@ function update($conn) {
 
     $introduce = $_POST['introduce'];
     $introduce = str_replace("'", "\'", $introduce);
+    $introduce= htmlentities($introduce);
 
     if (isset($_FILES['avatar']) && isset($_FILES['avatar']['name']) && $_FILES['avatar']['name'] != '') {
         $avatar = $_FILES['avatar']['name'];
