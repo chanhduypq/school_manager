@@ -111,6 +111,15 @@ if (count($_POST) > 0) {
                         </td>
 
                     </tr>
+                    <tr>                 
+                        <td nowrap="nowrap" style="width: 20%;text-align: right;">
+                            &nbsp;
+                        </td>
+                        <td nowrap="nowrap">
+                            <input type="file" name="profile"/>
+                        </td>
+
+                    </tr>
                     <tr>
                         <td colspan="2" align="center" style="width: 40%;padding-top: 30px;">
                             <input type="submit" value="Thêm mới"/>
@@ -203,6 +212,18 @@ function insert($conn){
         $avatar='';
     }
     
+    if (isset($_FILES['profile']) && isset($_FILES['profile']['name']) && $_FILES['profile']['name'] != '') {
+        $profile = $_FILES['profile']['name'];
+        $extension = explode(".", $profile);
+        $extension = $extension[count($extension) - 1];
+        $profile = sprintf('_%s.' . $extension, uniqid(md5(time()), true));
+        move_uploaded_file($_FILES['profile']['tmp_name'], "../public/images/database/profile/" . $profile);
+
+        
+    } else {
+        $profile = '';
+    }
+    
     
     $sex = $_POST['sex'];
     $sql = "insert into pupil "
@@ -213,7 +234,8 @@ function insert($conn){
             . "sex,"
             . "introduce,"
             . "married,"
-            . "avatar"
+            . "avatar,"
+            . "profile"
             . ") "
             . "values "
             . "("
@@ -223,7 +245,8 @@ function insert($conn){
             . "" . $sex . ","
             . "'" . $introduce . "',"
             . "" . $married . ","
-            . "'" . $avatar . "'".
+            . "'" . $avatar . "',"
+            . "'" . $profile . "'".
             ")";
     mysqli_query($conn, $sql);
     

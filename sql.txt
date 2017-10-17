@@ -1,0 +1,1 @@
+ALTER TABLE pupil ADD `profile` VARCHAR(255);

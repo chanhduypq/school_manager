@@ -26,6 +26,7 @@ while ($row = mysqli_fetch_array($result)) {
     $married = $row['married'];
     $introduce = $row['introduce'];
     $avatar = $row['avatar'];
+    $profile = $row['profile'];
 }
 ?>
 <!DOCTYPE html>
@@ -140,6 +141,25 @@ while ($row = mysqli_fetch_array($result)) {
                         </td>
 
                     </tr>
+                    <tr>                 
+                        <td nowrap="nowrap" style="width: 20%;text-align: right;">
+                            &nbsp;
+                        </td>
+                        <td nowrap="nowrap">
+                            <?php 
+                                if (trim($profile) != '') {
+                                ?>
+                                <a href="download.php?file_name=<?php echo $profile; ?>">
+                                    download
+                                </a>
+                                <br>
+                                <?php
+                            }
+                            ?>
+                            <input type="file" name="profile"/>
+                        </td>
+
+                    </tr>
                     <tr>
                         <td colspan="2" align="center" style="width: 40%;padding-top: 30px;">
                             <input type="submit" value="Sửa"/>
@@ -151,6 +171,7 @@ while ($row = mysqli_fetch_array($result)) {
 
             <input type="hidden" name="id" value="<?php echo $id; ?>"/>
             <input type="hidden" name="avatar_filename" value="<?php echo trim($avatar); ?>"/>
+            <input type="hidden" name="profile_filename" value="<?php echo trim($profile); ?>"/>
         </form>
 
         <script type="text/javascript">
@@ -244,6 +265,19 @@ function update($conn) {
     } else {
         $stringAvatarInSql = '';
     }
+    
+    if (isset($_FILES['profile']) && isset($_FILES['profile']['name']) && $_FILES['profile']['name'] != '') {
+        $profile = $_FILES['profile']['name'];
+        $extension = explode(".", $profile);
+        $extension = $extension[count($extension) - 1];
+        $profile = sprintf('_%s.' . $extension, uniqid(md5(time()), true));
+        move_uploaded_file($_FILES['profile']['tmp_name'], "../public/images/database/profile/" . $profile);
+
+        $stringProfileInSql = "profile='" . $profile . "',";
+        @unlink("../public/images/database/profile/".$_POST['profile_filename']);
+    } else {
+        $stringProfileInSql = '';
+    }
 
     $sex = $_POST['sex'];
     $id = $_POST['id'];
@@ -257,6 +291,7 @@ function update($conn) {
             . "birthday='" . $birthday . "',"
             . "introduce='" . $introduce . "',"
             . $stringAvatarInSql
+            . $stringProfileInSql
             . "married=" . $married . ","
             . "sex=" . $sex . " "
             . "where id=" . $id;
