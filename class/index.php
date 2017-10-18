@@ -61,8 +61,9 @@ if (!isset($_SESSION['username'])) {
                 </th>
                 <th style="width: 20%;">&nbsp;</th>
             </tr>
-            <?php
-            $conn = mysqli_connect("localhost", "root", "", "school_manager") or die();
+            <?php 
+            include '../define.php';
+            $conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
             mysqli_query($conn, "set names 'utf8'");
             $result = mysqli_query($conn, "SELECT name,id,(SELECT count(*) from pupil WHERE class_id=class.id) as count_pupil FROM class");
             while ($row = mysqli_fetch_array($result)) {

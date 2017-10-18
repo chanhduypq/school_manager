@@ -18,7 +18,8 @@ exit;
 
 function getPupilsByClassId($classId) {
     $pupils = array();
-    $conn = mysqli_connect("localhost", "root", "", "school_manager") or die();
+    include 'define.php';
+    $conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
     mysqli_query($conn, "set names 'utf8'");
     $result = mysqli_query($conn, "SELECT * from pupil WHERE class_id=$classId");
     while ($row = mysqli_fetch_array($result)) {
