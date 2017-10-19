@@ -7,20 +7,30 @@ mysqli_query($conn, "set names 'utf8'");
  * lưu vào database, sau đó quay lại trang index
  */
 if (count($_POST) > 0) {
-    update($conn);
-    header('Location:index.php');
-    exit;
-}
-
-$id = $_GET['id'];
-if (!ctype_digit($id)) {
-    header('Location:index.php');
-    exit;
-}
-$sql = "select * from class where id=" . $id;
-$result = mysqli_query($conn, $sql);
-while ($row = mysqli_fetch_array($result)) {
-    $name = $row['name'];
+    $inputName = $_POST['name'];
+    $inputName = str_replace("'", "\'", $inputName);
+    $inputName = htmlentities($inputName);
+    $id = $_POST['id'];
+    $sql = "select * from class where name='$inputName' and id<>$id";
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) == 0) {
+        update($conn);
+        header('Location:index.php');
+        exit;
+    } else {
+        $error = true;
+    }
+} else {
+    $id = $_GET['id'];
+    if (!ctype_digit($id)) {
+        header('Location:index.php');
+        exit;
+    }
+    $sql = "select * from class where id=" . $id;
+    $result = mysqli_query($conn, $sql);
+    while ($row = mysqli_fetch_array($result)) {
+        $name = $row['name'];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -49,7 +59,15 @@ while ($row = mysqli_fetch_array($result)) {
                             <label for="name">Tên lớp:<span style="color:red;"> *</span></label>
                         </td>
                         <td nowrap="nowrap" style="width: 20%;">
-                            <input type="text" name="name" id="name" value="<?php echo $name; ?>">					                
+                            <input type="text" name="name" id="name" value="<?php if(isset($error)) echo $inputName; else echo $name; ?>">
+                            <?php
+                            if(isset($error)){?>
+                            <div style="color: red;">
+                                Đã tồn tại lớp học mang tên [<?php echo $inputName;?>].
+                            </div>
+                            <?php 
+                            }
+                            ?>
                         </td>
 
                     </tr>

@@ -8,9 +8,18 @@ mysqli_query($conn, "set names 'utf8'");
  * lưu vào database, sau đó quay lại trang index
  */
 if (count($_POST) > 0) {
-    insert($conn);
-    header('Location:index.php');
-    exit;
+    $name = $_POST['name'];
+    $name = str_replace("'", "\'", $name);
+    $name= htmlentities($name);
+    $sql = "select * from class where name='$name'";    
+    $result = mysqli_query($conn, $sql);
+    if(mysqli_num_rows($result)==0){
+        insert($conn);
+        header('Location:index.php');
+        exit;
+    }
+    
+    
 }
 ?>
 <!DOCTYPE html>
@@ -39,7 +48,15 @@ if (count($_POST) > 0) {
                             <label for="name">Tên lớp:<span style="color:red;"> *</span></label>
                         </td>
                         <td nowrap="nowrap" style="width: 20%;">
-                            <input type="text" name="name" id="name">					                
+                            <input type="text" name="name" id="name" value="<?php if(isset($name)) echo $name;?>">
+                            <?php
+                            if(isset($name)){?>
+                            <div style="color: red;">
+                                Đã tồn tại lớp học mang tên [<?php echo $name;?>].
+                            </div>
+                            <?php 
+                            }
+                            ?>
                         </td>
 
                     </tr>
