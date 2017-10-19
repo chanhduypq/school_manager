@@ -61,7 +61,7 @@ if (!isset($_SESSION['username'])) {
             include '../define.php';
             $conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
             mysqli_query($conn, "set names 'utf8'");
-            $result = mysqli_query($conn, "select pupil.full_name,pupil.sex,pupil.birthday,class.name,pupil.id,pupil.married,pupil.introduce,pupil.avatar,pupil.profile from pupil join class on class.id=pupil.class_id order by pupil.class_id ASC");
+            $result = mysqli_query($conn, "select * from pupil_full order by class_id ASC");
             while ($row = mysqli_fetch_array($result)) {
                 ?>
                 <tr>
