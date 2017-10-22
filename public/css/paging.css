@@ -1,0 +1,19 @@
+.pagination span.selected{
+    background-color: #CA1A75;
+    cursor: default;
+}
+.pagination span.not_selected{
+    background-color: #FFE6F5;
+    cursor: pointer;
+    transition: all 0.3s ease 0s;
+}
+.pagination span{
+    margin-right: 20px;
+    padding: 8px 7px;
+    border-radius: 7px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+}
+.pagination span.not_selected:hover{
+    background-color: #CA1A75;
+}

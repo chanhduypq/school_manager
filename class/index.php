@@ -4,6 +4,14 @@ if (!isset($_SESSION['username'])) {
     header('Location:../login.php');
     exit;
 }
+include '../define.php';
+if(isset($_GET['page'])&& ctype_digit($_GET['page'])){
+    $page=$_GET['page'];
+}
+else{
+    $page=1;
+}
+$offset=($page-1)*NUMBER_ROW_PERPAGE;
 ?>
 <!DOCTYPE html>
 <html>
@@ -11,7 +19,8 @@ if (!isset($_SESSION['username'])) {
         <title>Lớp học</title>
         <meta http-equiv="content-type" content="text/html;charset=utf-8;" />
         <link href="../public/css/style.css" rel="stylesheet" type="text/css"/>
-        <link href="../public/css/menu.css" rel="stylesheet" type="text/css"/> 
+        <link href="../public/css/menu.css" rel="stylesheet" type="text/css"/>
+        <link href="../public/css/paging.css" rel="stylesheet" type="text/css"/>
         <script src="../public/js/jquery-2.0.3.js"></script>
         <script type="text/javascript">
             jQuery(function($){
@@ -62,10 +71,12 @@ if (!isset($_SESSION['username'])) {
                 <th style="width: 20%;">&nbsp;</th>
             </tr>
             <?php 
-            include '../define.php';
+            
             $conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
             mysqli_query($conn, "set names 'utf8'");
-            $result = mysqli_query($conn, "SELECT name,id,(SELECT count(*) from pupil WHERE class_id=class.id) as count_pupil FROM class");
+            $result = mysqli_query($conn, "SELECT name,id,(SELECT count(*) from pupil WHERE class_id=class.id) as count_pupil FROM class limit $offset,".NUMBER_ROW_PERPAGE);
+            $countClass= getClassCount($conn);
+            
             while ($row = mysqli_fetch_array($result)) {
                 ?>
                 <tr>
@@ -103,9 +114,47 @@ if (!isset($_SESSION['username'])) {
                 </tr>
                 
                 
+                
+                
                     <?php
+            }
+            if($countClass>0){
+            ?>
+            <tr style="height: 50px;background-color: #c1976c;">
+                <td colspan="3" style="text-align: center;" class="pagination">
+                    <?php 
+                    $numberPage= ceil($countClass/NUMBER_ROW_PERPAGE);
+                    for($i=1;$i<=$numberPage;$i++){
+                        if($page==$i){
+                            $href="#";
+                            $class='selected';
+                        }
+                        else{
+                            $href="index.php?page=$i";
+                            $class='not_selected';
+                        }
+                        ?>
+                        <span class="<?php echo $class;?>" onclick="window.location='<?php echo $href;?>';">
+                            <?php echo $i;?>
+                        </span>
+                    <?php 
+                    }
+                    ?>
+                </td>
+            </tr>
+            <?php 
             }
             ?>
         </table>
     </body>
 </html>
+
+<?php 
+function getClassCount($conn){
+    $result = mysqli_query($conn, "SELECT count(*) as count FROM class");
+    if($row = mysqli_fetch_array($result)) {
+        return $row['count'];
+    }
+    return 0;
+}
+?>
