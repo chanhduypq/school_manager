@@ -74,7 +74,7 @@ $offset=($page-1)*NUMBER_ROW_PERPAGE;
             
             $conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
             mysqli_query($conn, "set names 'utf8'");
-            $result = mysqli_query($conn, "SELECT name,id,(SELECT count(*) from pupil WHERE class_id=class.id) as count_pupil FROM class limit $offset,".NUMBER_ROW_PERPAGE);
+            $result = mysqli_query($conn, "SELECT * FROM class_full limit $offset,".NUMBER_ROW_PERPAGE);
             $countClass= getClassCount($conn);
             
             while ($row = mysqli_fetch_array($result)) {
