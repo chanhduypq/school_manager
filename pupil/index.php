@@ -77,7 +77,7 @@ $offset = ($page - 1) * NUMBER_ROW_PERPAGE;
                     <td><?php echo $row['full_name']; ?></td>
                     <td>
                         <?php
-                        echo convertToVNDate($row['birthday']);
+                        echo $row['birthday'];
                         ?>
                     </td>
                     <td>

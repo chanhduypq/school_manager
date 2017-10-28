@@ -17,12 +17,12 @@ if (!ctype_digit($id)) {
     header('Location:index.php');
     exit;
 }
-$sql = "select * from pupil where id=" . $id;
+$sql = "select * from pupil_full where id=" . $id;
 $result = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_array($result)) {
     $class_id = $row['class_id'];
     $full_name = $row['full_name'];
-    $birthday = convertToVNDate($row['birthday']);
+    $birthday = $row['birthday'];
     $sex = $row['sex'];
     $married = $row['married'];
     $introduce = $row['introduce'];
