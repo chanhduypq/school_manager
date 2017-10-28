@@ -28,6 +28,8 @@ while ($row = mysqli_fetch_array($result)) {
     $introduce = $row['introduce'];
     $avatar = $row['avatar'];
     $profile = $row['profile'];
+    $sport=$row['sport'];
+    $music=$row['music'];
 }
 ?>
 <!DOCTYPE html>
@@ -161,6 +163,17 @@ while ($row = mysqli_fetch_array($result)) {
                         </td>
 
                     </tr>
+                    
+                    <tr>                 
+                        <td nowrap="nowrap" style="width: 20%;text-align: right;">
+                            Sở thích
+                        </td>
+                        <td nowrap="nowrap">
+                            <label><input type="checkbox" name="so_thich[]" value="sport"<?php if ($sport == '1') echo ' checked="checked"'; ?>/>Thể thao</label>
+                            <label><input type="checkbox" name="so_thich[]" value="music"<?php if ($music == '1') echo ' checked="checked"'; ?>/>Âm nhạc</label>
+                        </td>
+
+                    </tr>
                     <tr>
                         <td colspan="2" align="center" style="width: 40%;padding-top: 30px;">
                             <input type="submit" value="Sửa"/>
@@ -243,6 +256,20 @@ function update($conn) {
     $full_name= htmlentities($full_name);
     $birthday = $_POST['birthday'];
     $birthday = convertToENDate($birthday);
+    
+    $music = '0';
+    $sport = '0';
+    if (isset($_POST['so_thich'])) {
+        $so_thich = $_POST['so_thich'];
+        for ($i = 0; $i < count($so_thich); $i++) {
+            if ($so_thich[$i] == 'music') {
+                $music = '1';
+            } else if ($so_thich[$i] == 'sport') {
+                $sport = '1';
+            }
+        }
+    }
+
 
     if (isset($_POST['married']) && $_POST['married'] == '1') {
         $married = '1';
@@ -294,6 +321,8 @@ function update($conn) {
             . $stringAvatarInSql
             . $stringProfileInSql
             . "married=" . $married . ","
+            . "sport=" . $sport . ","
+            . "music=" . $music . ","
             . "sex=" . $sex . " "
             . "where id=" . $id;
     mysqli_query($conn, $sql);

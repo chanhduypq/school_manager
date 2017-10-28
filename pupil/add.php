@@ -121,6 +121,18 @@ if (count($_POST) > 0) {
                         </td>
 
                     </tr>
+                    
+                    <tr>                 
+                        <td nowrap="nowrap" style="width: 20%;text-align: right;">
+                            Sở thích
+                        </td>
+                        <td nowrap="nowrap">
+                            <label><input type="checkbox" name="so_thich[]" value="sport"/>Thể thao</label>
+                            <label><input type="checkbox" name="so_thich[]" value="music"/>Âm nhạc</label>
+                        </td>
+
+                    </tr>
+                    
                     <tr>
                         <td colspan="2" align="center" style="width: 40%;padding-top: 30px;">
                             <input type="submit" value="Thêm mới"/>
@@ -227,6 +239,20 @@ function insert($conn){
     
     
     $sex = $_POST['sex'];
+    
+    $music = '0';
+    $sport = '0';
+    if (isset($_POST['so_thich'])) {
+        $so_thich = $_POST['so_thich'];
+        for ($i = 0; $i < count($so_thich); $i++) {
+            if ($so_thich[$i] == 'music') {
+                $music = '1';
+            } else if ($so_thich[$i] == 'sport') {
+                $sport = '1';
+            }
+        }
+    }
+    
     $sql = "insert into pupil "
             . "("
             . "class_id,"
@@ -236,6 +262,8 @@ function insert($conn){
             . "introduce,"
             . "married,"
             . "avatar,"
+            . "music,"
+            . "sport,"
             . "profile"
             . ") "
             . "values "
@@ -247,6 +275,8 @@ function insert($conn){
             . "'" . $introduce . "',"
             . "" . $married . ","
             . "'" . $avatar . "',"
+            . "" . $music . ","
+            . "" . $sport . ","
             . "'" . $profile . "'".
             ")";
     mysqli_query($conn, $sql);
