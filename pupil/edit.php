@@ -1,13 +1,46 @@
 <?php 
-include '../define.php';
-$conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
-mysqli_query($conn, "set names 'utf8'");
+include '../models/pupil.php';
+include '../models/class.php';
+$model = new ModelPupil();
+$modelClass = new ModelClass();
 /**
  * đây là đoạn code xử lý khi user vừa submit
  * lưu vào database, sau đó quay lại trang index
  */
 if (count($_POST) > 0) {
-    update($conn);
+
+
+    $class_id = $_POST['class_id'];
+    $full_name = $_POST['full_name'];
+    $full_name = str_replace("'", "\'", $full_name);
+    $full_name = htmlentities($full_name);
+    $birthday = $_POST['birthday'];
+    $birthday = convertToENDate($birthday);
+
+    $music = '0';
+    $sport = '0';
+    if (isset($_POST['so_thich'])) {
+        $so_thich = $_POST['so_thich'];
+    } else {
+        $so_thich = array();
+    }
+
+
+    if (isset($_POST['married']) && $_POST['married'] == '1') {
+        $married = '1';
+    } else {
+        $married = '0';
+    }
+
+    $introduce = $_POST['introduce'];
+    $introduce = str_replace("'", "\'", $introduce);
+    $introduce = htmlentities($introduce);
+
+    $sex = $_POST['sex'];
+    $id = $_POST['id'];
+
+
+    $model->update($class_id, $full_name, $birthday, $married, $introduce, $sex, $so_thich, $id);
     header('Location:index.php');
     exit;
 }
@@ -17,20 +50,17 @@ if (!ctype_digit($id)) {
     header('Location:index.php');
     exit;
 }
-$sql = "select * from pupil_full where id=" . $id;
-$result = mysqli_query($conn, $sql);
-while ($row = mysqli_fetch_array($result)) {
-    $class_id = $row['class_id'];
-    $full_name = $row['full_name'];
-    $birthday = $row['birthday'];
-    $sex = $row['sex'];
-    $married = $row['married'];
-    $introduce = $row['introduce'];
-    $avatar = $row['avatar'];
-    $profile = $row['profile'];
-    $sport=$row['sport'];
-    $music=$row['music'];
-}
+$row = $model->get($id);
+$class_id = $row['class_id'];
+$full_name = $row['full_name'];
+$birthday = $row['birthday'];
+$sex = $row['sex'];
+$married = $row['married'];
+$introduce = $row['introduce'];
+$avatar = $row['avatar'];
+$profile = $row['profile'];
+$sport = $row['sport'];
+$music = $row['music'];
 ?>
 <!DOCTYPE html>
 <html>
@@ -63,8 +93,8 @@ while ($row = mysqli_fetch_array($result)) {
                             <select name="class_id" id="class_id">
                                 <option value="">----Chọn lớp----</option>
                                 <?php
-                                $result = mysqli_query($conn, "select * from class");
-                                while ($row = mysqli_fetch_array($result)) {
+                                $classes=$modelClass->getClasses("1=1");
+                                foreach ($classes as $row){
                                     if ($row['id'] == $class_id) {
                                         $select = ' selected="selected"';
                                     } else {
@@ -235,97 +265,12 @@ while ($row = mysqli_fetch_array($result)) {
 </html>
 <?php
 
-function convertToVNDate($dateTime) {
-    $temp = explode(' ', $dateTime);
-    $dateEn = $temp[0];
-    $temp = explode('-', $dateEn);
-    $dateVn = $temp[2] . '/' . $temp[1] . '/' . $temp[0];
-    return $dateVn;
-}
-
 function convertToENDate($dateVn) {
     $temp = explode('/', $dateVn);
     $dateEn = $temp[2] . '-' . $temp[1] . '-' . $temp[0];
     return $dateEn;
 }
 
-function update($conn) {
-    $class_id = $_POST['class_id'];
-    $full_name = $_POST['full_name'];
-    $full_name = str_replace("'", "\'", $full_name);
-    $full_name= htmlentities($full_name);
-    $birthday = $_POST['birthday'];
-    $birthday = convertToENDate($birthday);
-    
-    $music = '0';
-    $sport = '0';
-    if (isset($_POST['so_thich'])) {
-        $so_thich = $_POST['so_thich'];
-        for ($i = 0; $i < count($so_thich); $i++) {
-            if ($so_thich[$i] == 'music') {
-                $music = '1';
-            } else if ($so_thich[$i] == 'sport') {
-                $sport = '1';
-            }
-        }
-    }
 
-
-    if (isset($_POST['married']) && $_POST['married'] == '1') {
-        $married = '1';
-    } else {
-        $married = '0';
-    }
-
-    $introduce = $_POST['introduce'];
-    $introduce = str_replace("'", "\'", $introduce);
-    $introduce= htmlentities($introduce);
-
-    if (isset($_FILES['avatar']) && isset($_FILES['avatar']['name']) && $_FILES['avatar']['name'] != '') {
-        $avatar = $_FILES['avatar']['name'];
-        $extension = explode(".", $avatar);
-        $extension = $extension[count($extension) - 1];
-        $avatar = sprintf('_%s.' . $extension, uniqid(md5(time()), true));
-        move_uploaded_file($_FILES['avatar']['tmp_name'], "../public/images/database/avatar/" . $avatar);
-
-        $stringAvatarInSql = "avatar='" . $avatar . "',";
-        @unlink("../public/images/database/avatar/".$_POST['avatar_filename']);
-    } else {
-        $stringAvatarInSql = '';
-    }
-    
-    if (isset($_FILES['profile']) && isset($_FILES['profile']['name']) && $_FILES['profile']['name'] != '') {
-        $profile = $_FILES['profile']['name'];
-        $extension = explode(".", $profile);
-        $extension = $extension[count($extension) - 1];
-        $profile = sprintf('_%s.' . $extension, uniqid(md5(time()), true));
-        move_uploaded_file($_FILES['profile']['tmp_name'], "../public/images/database/profile/" . $profile);
-
-        $stringProfileInSql = "profile='" . $profile . "',";
-        @unlink("../public/images/database/profile/".$_POST['profile_filename']);
-    } else {
-        $stringProfileInSql = '';
-    }
-
-    $sex = $_POST['sex'];
-    $id = $_POST['id'];
-    if (!ctype_digit($id) || !ctype_digit($class_id)) {
-        header('Location:index.php');
-        exit;
-    }
-    $sql = "update pupil set " .
-            "class_id=" . $class_id . ","
-            . "full_name='" . $full_name . "',"
-            . "birthday='" . $birthday . "',"
-            . "introduce='" . $introduce . "',"
-            . $stringAvatarInSql
-            . $stringProfileInSql
-            . "married=" . $married . ","
-            . "sport=" . $sport . ","
-            . "music=" . $music . ","
-            . "sex=" . $sex . " "
-            . "where id=" . $id;
-    mysqli_query($conn, $sql);
-}
 
 ?>

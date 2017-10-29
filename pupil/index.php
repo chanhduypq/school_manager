@@ -5,11 +5,33 @@ if (!isset($_SESSION['username'])) {
     exit;
 }
 include '../define.php';
+include '../models/pupil.php';
 if (isset($_GET['page']) && ctype_digit($_GET['page'])) {
     $page = $_GET['page'];
 } else {
     $page = 1;
 }
+
+
+if(isset($_POST['q'])){
+    $value=$_POST['q'];
+    $q= str_replace("'", "\'", $_POST['q']);
+    $where="full_name like '%$q%'";
+    $textUrl="&old_q=".$_POST['q'];
+    $page = 1;
+}
+else if(isset($_GET['old_q'])){
+    $value=$_GET['old_q'];
+    $q= str_replace("'", "\'", $_GET['old_q']);
+    $where="full_name like '%$q%'";
+    $textUrl="&old_q=".$_GET['old_q'];
+}
+else{
+    $where=" 1=1 ";
+    $value="";
+    $textUrl="";
+}
+            
 $offset = ($page - 1) * NUMBER_ROW_PERPAGE;
 ?>
 <!DOCTYPE html>
@@ -39,6 +61,12 @@ $offset = ($page - 1) * NUMBER_ROW_PERPAGE;
         <div class="right toolbar">
             <input onclick="window.location = 'add.php';" type="button" value="Thêm mới" class="button">
         </div>
+        <div style="clear: both;"></div>
+        <div>
+            <form method="post" action="index.php">
+                <input type="text" value="<?php echo $value;?>" name="q" placeholder="Nhập tên lớp để tìm kiếm" style="width: 200px;">
+            </form>
+        </div>
         <table class="list" style="width: 100%;">
 
             <tr>
@@ -66,11 +94,11 @@ $offset = ($page - 1) * NUMBER_ROW_PERPAGE;
                 <th style="width: 20%;">&nbsp;</th>
             </tr>
             <?php 
-            $conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
-            mysqli_query($conn, "set names 'utf8'");
-            $countPupil = getClassPupil($conn);
-            $result = mysqli_query($conn, "select * from pupil_full order by class_id ASC limit $offset," . NUMBER_ROW_PERPAGE);
-            while ($row = mysqli_fetch_array($result)) {
+            $model=new ModelPupil();
+            
+            $countPupil =$model->getPupilCount($where);
+            $pupils=$model->getPupils($where, $offset, NUMBER_ROW_PERPAGE);
+            foreach ($pupils as $row){
                 ?>
                 <tr>
                     <td><?php echo $row['name']; ?></td>
@@ -144,8 +172,8 @@ $offset = ($page - 1) * NUMBER_ROW_PERPAGE;
                     $hrefFirst = "#";
                     $classPrevFirst = "selected";
                 } else {
-                    $hrefFirst = "index.php?page=1";
-                    $hrefPrev = "index.php?page=" . ($page - 1);
+                    $hrefFirst = "index.php?page=1$textUrl";
+                    $hrefPrev = "index.php?page=" . ($page - 1).$textUrl;
                     $classPrevFirst = "not_selected";
                 }
 
@@ -154,8 +182,8 @@ $offset = ($page - 1) * NUMBER_ROW_PERPAGE;
                     $hrefLast = "#";
                     $classNextLast = "selected";
                 } else {
-                    $hrefLast = "index.php?page=$numberPage";
-                    $hrefNext = "index.php?page=" . ($page + 1);
+                    $hrefLast = "index.php?page=$numberPage".$textUrl;
+                    $hrefNext = "index.php?page=" . ($page + 1).$textUrl;
                     $classNextLast = "not_selected";
                 }
                 ?>
@@ -175,7 +203,7 @@ $offset = ($page - 1) * NUMBER_ROW_PERPAGE;
                                 $href = "#";
                                 $class = 'selected';
                             } else {
-                                $href = "index.php?page=$start";
+                                $href = "index.php?page=$start".$textUrl;
                                 $class = 'not_selected';
                             }
                             ?>
@@ -202,22 +230,3 @@ $offset = ($page - 1) * NUMBER_ROW_PERPAGE;
         </table>
     </body>
 </html>
-
-<?php
-
-function convertToVNDate($dateTime) {
-    $temp = explode(' ', $dateTime);
-    $dateEn = $temp[0];
-    $temp = explode('-', $dateEn);
-    $dateVn = $temp[2] . '/' . $temp[1] . '/' . $temp[0];
-    return $dateVn;
-}
-
-function getClassPupil($conn) {
-    $result = mysqli_query($conn, "SELECT count(*) as count FROM pupil");
-    if ($row = mysqli_fetch_array($result)) {
-        return $row['count'];
-    }
-    return 0;
-}
-?>

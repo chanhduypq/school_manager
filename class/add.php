@@ -1,7 +1,5 @@
 <?php 
-include '../define.php';
-$conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
-mysqli_query($conn, "set names 'utf8'");
+include '../models/class.php';
 
 /**
  * đây là đoạn code xử lý khi user vừa submit
@@ -11,15 +9,12 @@ if (count($_POST) > 0) {
     $name = $_POST['name'];
     $name = str_replace("'", "\'", $name);
     $name= htmlentities($name);
-    $sql = "select * from class where name='$name'";    
-    $result = mysqli_query($conn, $sql);
-    if(mysqli_num_rows($result)==0){
-        insert($conn);
+    $model=new ModelClass();
+    if($model->exist($name)==FALSE){
+        $model->insert($name);
         header('Location:index.php');
         exit;
     }
-    
-    
 }
 ?>
 <!DOCTYPE html>
@@ -48,11 +43,11 @@ if (count($_POST) > 0) {
                             <label for="name">Tên lớp:<span style="color:red;"> *</span></label>
                         </td>
                         <td nowrap="nowrap" style="width: 20%;">
-                            <input type="text" name="name" id="name" value="<?php if(isset($name)) echo $name;?>">
+                            <input type="text" name="name" id="name" value="<?php if(isset($_POST['name'])) echo $_POST['name'];?>">
                             <?php
-                            if(isset($name)){?>
+                            if(isset($_POST['name'])){?>
                             <div style="color: red;">
-                                Đã tồn tại lớp học mang tên [<?php echo $name;?>].
+                                Đã tồn tại lớp học mang tên [<?php echo $_POST['name'];?>].
                             </div>
                             <?php 
                             }
@@ -91,20 +86,3 @@ if (count($_POST) > 0) {
         </script>
     </body>
 </html>
-<?php 
-function insert($conn){
-    $name = $_POST['name'];
-    $name = str_replace("'", "\'", $name);
-    $name= htmlentities($name);
-    $sql = "insert into class "
-            . "("
-            . "name"
-            . ") "
-            . "values "
-            . "("
-            . "'" . $name ."'".
-            ")";
-    mysqli_query($conn, $sql);
-    
-}
-?>

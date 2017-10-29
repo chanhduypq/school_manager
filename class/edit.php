@@ -1,7 +1,5 @@
 <?php 
-include '../define.php';
-$conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
-mysqli_query($conn, "set names 'utf8'");
+include '../models/class.php';
 /**
  * đây là đoạn code xử lý khi user vừa submit
  * lưu vào database, sau đó quay lại trang index
@@ -11,10 +9,9 @@ if (count($_POST) > 0) {
     $inputName = str_replace("'", "\'", $inputName);
     $inputName = htmlentities($inputName);
     $id = $_POST['id'];
-    $sql = "select * from class where name='$inputName' and id<>$id";
-    $result = mysqli_query($conn, $sql);
-    if (mysqli_num_rows($result) == 0) {
-        update($conn);
+    $model=new ModelClass();
+    if ($model->exist($inputName, $id)==FALSE) {
+        $model->update($inputName, $id);
         header('Location:index.php');
         exit;
     } else {
@@ -26,11 +23,9 @@ if (count($_POST) > 0) {
         header('Location:index.php');
         exit;
     }
-    $sql = "select * from class where id=" . $id;
-    $result = mysqli_query($conn, $sql);
-    while ($row = mysqli_fetch_array($result)) {
-        $name = $row['name'];
-    }
+    $model=new ModelClass();
+    $row=$model->get($id);
+    $name = $row['name'];
 }
 ?>
 <!DOCTYPE html>
@@ -59,11 +54,11 @@ if (count($_POST) > 0) {
                             <label for="name">Tên lớp:<span style="color:red;"> *</span></label>
                         </td>
                         <td nowrap="nowrap" style="width: 20%;">
-                            <input type="text" name="name" id="name" value="<?php if(isset($error)) echo $inputName; else echo $name; ?>">
+                            <input type="text" name="name" id="name" value="<?php if(isset($error)) echo $_POST['name']; else echo $name; ?>">
                             <?php
                             if(isset($error)){?>
                             <div style="color: red;">
-                                Đã tồn tại lớp học mang tên [<?php echo $inputName;?>].
+                                Đã tồn tại lớp học mang tên [<?php echo $_POST['name'];?>].
                             </div>
                             <?php 
                             }
@@ -103,19 +98,3 @@ if (count($_POST) > 0) {
         </script>
     </body>
 </html>
-<?php 
-function update($conn){  
-    $name = $_POST['name'];
-    $name = str_replace("'", "\'", $name);
-    $name= htmlentities($name);
-    $id = $_POST['id'];
-    if (!ctype_digit($id)) {
-        header('Location:index.php');
-        exit;
-    }
-    $sql = "update class set " 
-            . "name='" . $name . "'"
-            . "where id=" . $id;
-    mysqli_query($conn, $sql);
-}
-?>

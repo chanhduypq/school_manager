@@ -1,14 +1,41 @@
 <?php 
-include '../define.php';
-$conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
-mysqli_query($conn, "set names 'utf8'");
-
+include '../models/class.php';
+$modelClass = new ModelClass();
 /**
  * đây là đoạn code xử lý khi user vừa submit
  * lưu vào database, sau đó quay lại trang index
  */
 if (count($_POST) > 0) {
-    insert($conn);
+    include '../models/pupil.php';
+    
+    $class_id = $_POST['class_id'];
+    $full_name = $_POST['full_name'];
+    $full_name = str_replace("'", "\'", $full_name);
+    $full_name= htmlentities($full_name);
+    $birthday = $_POST['birthday'];
+    $birthday = convertToENDate($birthday);
+    
+    if (isset($_POST['married']) && $_POST['married'] == '1') {
+        $married = '1';
+    } else {
+        $married = '0';
+    }
+    
+    $introduce=$_POST['introduce'];
+    $introduce = str_replace("'", "\'", $introduce);
+    $introduce= htmlentities($introduce);
+    
+    if (isset($_POST['so_thich'])) {
+        $so_thich = $_POST['so_thich'];        
+    }
+    else{
+        $so_thich=array();
+    }
+    
+    $sex = $_POST['sex'];
+    
+    $model=new ModelPupil();
+    $model->insert($class_id, $full_name, $birthday, $married, $introduce, $sex, $so_thich);
     header('Location:index.php');
     exit;
 }
@@ -44,8 +71,8 @@ if (count($_POST) > 0) {
                             <select name="class_id" id="class_id">
                                 <option value="">----Chọn lớp----</option>
                                 <?php
-                                $result = mysqli_query($conn, "select * from class");
-                                while ($row = mysqli_fetch_array($result)) {
+                                $classes=$modelClass->getClasses("1=1");
+                                foreach ($classes as $row){
                                     ?>
                                     <option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
                                     <?php
@@ -196,90 +223,5 @@ function convertToENDate($dateVn) {
     return $dateEn;
 }
 
-function insert($conn){
-    $class_id = $_POST['class_id'];
-    $full_name = $_POST['full_name'];
-    $full_name = str_replace("'", "\'", $full_name);
-    $full_name= htmlentities($full_name);
-    $birthday = $_POST['birthday'];
-    $birthday = convertToENDate($birthday);
-    
-    if (isset($_POST['married']) && $_POST['married'] == '1') {
-        $married = '1';
-    } else {
-        $married = '0';
-    }
-    
-    $introduce=$_POST['introduce'];
-    $introduce = str_replace("'", "\'", $introduce);
-    $introduce= htmlentities($introduce);
-    
-    if (isset($_FILES['avatar']) && isset($_FILES['avatar']['name']) && $_FILES['avatar']['name'] != '') {
-        $avatar = $_FILES['avatar']['name'];
-        $extension = explode(".", $avatar);
-        $extension = $extension[count($extension) - 1];
-        $avatar = sprintf('_%s.' . $extension, uniqid(md5(time()), true));
-        move_uploaded_file($_FILES['avatar']['tmp_name'], "../public/images/database/avatar/" . $avatar);
-    }
-    else{
-        $avatar='';
-    }
-    
-    if (isset($_FILES['profile']) && isset($_FILES['profile']['name']) && $_FILES['profile']['name'] != '') {
-        $profile = $_FILES['profile']['name'];
-        $extension = explode(".", $profile);
-        $extension = $extension[count($extension) - 1];
-        $profile = sprintf('_%s.' . $extension, uniqid(md5(time()), true));
-        move_uploaded_file($_FILES['profile']['tmp_name'], "../public/images/database/profile/" . $profile);
 
-        
-    } else {
-        $profile = '';
-    }
-    
-    
-    $sex = $_POST['sex'];
-    
-    $music = '0';
-    $sport = '0';
-    if (isset($_POST['so_thich'])) {
-        $so_thich = $_POST['so_thich'];
-        for ($i = 0; $i < count($so_thich); $i++) {
-            if ($so_thich[$i] == 'music') {
-                $music = '1';
-            } else if ($so_thich[$i] == 'sport') {
-                $sport = '1';
-            }
-        }
-    }
-    
-    $sql = "insert into pupil "
-            . "("
-            . "class_id,"
-            . "full_name,"
-            . "birthday,"
-            . "sex,"
-            . "introduce,"
-            . "married,"
-            . "avatar,"
-            . "music,"
-            . "sport,"
-            . "profile"
-            . ") "
-            . "values "
-            . "("
-            . "" . $class_id . ","
-            . "'" . $full_name . "',"
-            . "'" . $birthday . "',"
-            . "" . $sex . ","
-            . "'" . $introduce . "',"
-            . "" . $married . ","
-            . "'" . $avatar . "',"
-            . "" . $music . ","
-            . "" . $sport . ","
-            . "'" . $profile . "'".
-            ")";
-    mysqli_query($conn, $sql);
-    
-}
 ?>

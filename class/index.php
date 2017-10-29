@@ -5,6 +5,7 @@ if (!isset($_SESSION['username'])) {
     exit;
 }
 include '../define.php';
+include '../models/class.php';
 if (isset($_GET['page']) && ctype_digit($_GET['page'])) {
     $page = $_GET['page'];
 } else {
@@ -97,15 +98,13 @@ $offset = ($page - 1) * NUMBER_ROW_PERPAGE;
                 </th>
                 <th style="width: 20%;">&nbsp;</th>
             </tr>
-            <?php
-            $conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
-            mysqli_query($conn, "set names 'utf8'");
+            <?php 
+            $model=new ModelClass();
             
-            
-            $result = mysqli_query($conn, "SELECT * FROM class_full where $where limit $offset," . NUMBER_ROW_PERPAGE);
-            $countClass = getClassCount($conn,$where);
+            $countClass =$model->getClassCount($where);
+            $classes=$model->getClasses($where, $offset, NUMBER_ROW_PERPAGE);
 
-            while ($row = mysqli_fetch_array($result)) {
+            foreach ($classes as $row){
                 ?>
                 <tr>
                     <td>
@@ -213,14 +212,3 @@ $offset = ($page - 1) * NUMBER_ROW_PERPAGE;
         </table>
     </body>
 </html>
-
-<?php
-
-function getClassCount($conn,$where) {
-    $result = mysqli_query($conn, "SELECT count(*) as count FROM class where $where");
-    if ($row = mysqli_fetch_array($result)) {
-        return $row['count'];
-    }
-    return 0;
-}
-?>
