@@ -13,6 +13,14 @@ class ModelPupil {
     }
 
     public function insert($class_id, $full_name, $birthday, $married, $introduce, $sex, $so_thich) {
+        if($introduce==''){
+            $introduce='NULL';
+        }
+        else{
+            $introduce="'".$introduce."'";
+        }
+        
+        
 
         if (isset($_FILES['avatar']) && isset($_FILES['avatar']['name']) && $_FILES['avatar']['name'] != '') {
             $avatar = $_FILES['avatar']['name'];
@@ -65,7 +73,7 @@ class ModelPupil {
                 . "'" . $full_name . "',"
                 . "'" . $birthday . "',"
                 . "" . $sex . ","
-                . "'" . $introduce . "',"
+                . $introduce .","
                 . "" . $married . ","
                 . "'" . $avatar . "',"
                 . "" . $music . ","
