@@ -5,7 +5,7 @@ $password = $_POST['password'];
 
 $username= str_replace("'", "\'", $username);
 $password= sha1($password);
-include 'define.php';
+include 'define_db.php';
 $conn = mysqli_connect(HOST, USERNAME, PASSWORD, DB_NAME) or die();
 mysqli_query($conn, "set names 'utf8'");
 $result = mysqli_query($conn, "select * from user where username='" . $username . "' and password='" . $password . "'");
